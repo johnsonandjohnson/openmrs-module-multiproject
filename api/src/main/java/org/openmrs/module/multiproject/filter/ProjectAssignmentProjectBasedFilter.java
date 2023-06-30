@@ -17,9 +17,10 @@ import org.openmrs.module.multiproject.ProjectAssignment;
 import org.openmrs.module.multiproject.api.service.ProjectAssignmentService;
 import org.openmrs.module.multiproject.api.service.ProjectService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -70,19 +71,36 @@ public class ProjectAssignmentProjectBasedFilter<R> implements ProjectBasedFilte
 
     final ProjectAssignmentService projectAssignmentService =
         Context.getService(ProjectAssignmentService.class);
-    final Map<String, Project> projectAssignments =
-        projectAssignmentService.getProjectAssignmentsForObject(assignmentClass).stream()
-            .collect(
-                Collectors.toMap(ProjectAssignment::getObjectId, ProjectAssignment::getProject));
+
+    List<ProjectAssignment> assignmentsByObject =
+        projectAssignmentService.getProjectAssignmentsForObject(assignmentClass);
+
+    List<ProjectAssignment> assignmentsByClassAndProject = new ArrayList<>();
+    if (currentProject.isPresent()) {
+      assignmentsByClassAndProject =
+          assignmentsByObject.stream()
+              .filter(assignment -> assignment.getProject().equals(currentProject.get()))
+              .collect(Collectors.toList());
+    }
+
+    List<String> assignmentsByClassAndProjectObjectIDs =
+        assignmentsByClassAndProject.stream()
+            .map(ProjectAssignment::getObjectId)
+            .collect(Collectors.toList());
 
     final Iterator<R> resultIterator = results.iterator();
     while (resultIterator.hasNext()) {
       final R resultItem = resultIterator.next();
       final String itemId = idGetter.apply(resultItem);
-      final Project assignedProject = projectAssignments.get(itemId);
 
-      if (assignedProject != null && !assignedProject.equals(currentProject.orElse(null))) {
-        resultIterator.remove();
+      if (!assignmentsByClassAndProjectObjectIDs.contains(itemId)) {
+        List<String> assignmentsByObjectIDs =
+            assignmentsByObject.stream()
+                .map(ProjectAssignment::getObjectId)
+                .collect(Collectors.toList());
+        if (assignmentsByObjectIDs.contains(itemId)) {
+          resultIterator.remove();
+        }
       }
     }
   }

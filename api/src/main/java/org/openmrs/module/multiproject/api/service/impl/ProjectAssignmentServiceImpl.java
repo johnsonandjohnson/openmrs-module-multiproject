@@ -12,6 +12,7 @@ package org.openmrs.module.multiproject.api.service.impl;
 
 import org.openmrs.api.APIException;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.multiproject.Project;
 import org.openmrs.module.multiproject.ProjectAssignment;
 import org.openmrs.module.multiproject.api.service.ProjectAssignmentService;
 import org.openmrs.module.multiproject.api.dao.ProjectAssignmentDAO;
@@ -57,6 +58,12 @@ public class ProjectAssignmentServiceImpl extends BaseOpenmrsService
   @Override
   public List<ProjectAssignment> getProjectAssignmentsForObject(Class<?> objectClass) {
     return projectAssignmentDAO.getProjectAssignmentsForObjectClass(objectClass.getName());
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<ProjectAssignment> getProjectAssignmentsForObjectAndProject(Class<?> objectClass, Project project) {
+    return projectAssignmentDAO.getProjectAssignmentsForObjectAndProject(objectClass.getName(), project);
   }
 
   @Transactional(readOnly = true)

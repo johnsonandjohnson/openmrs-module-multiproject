@@ -13,6 +13,7 @@ package org.openmrs.module.multiproject.api.service;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.APIException;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.multiproject.Project;
 import org.openmrs.module.multiproject.ProjectAssignment;
 import org.openmrs.module.multiproject.api.constant.PrivilegeConstants;
 import org.openmrs.module.multiproject.api.dao.ProjectAssignmentDAO;
@@ -38,6 +39,8 @@ public interface ProjectAssignmentService extends OpenmrsService {
   List<ProjectAssignment> getAllProjectAssignments(boolean includeRetired) throws APIException;
 
   List<ProjectAssignment> getProjectAssignmentsForObject(Class<?> objectClass);
+
+  List<ProjectAssignment> getProjectAssignmentsForObjectAndProject(Class<?> objectClass, Project project);
 
   long getProjectAssignmentCount(boolean includeRetired) throws APIException;
 

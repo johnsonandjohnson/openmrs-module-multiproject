@@ -11,6 +11,7 @@
 package org.openmrs.module.multiproject.api.dao;
 
 import org.hibernate.criterion.Restrictions;
+import org.openmrs.module.multiproject.Project;
 import org.openmrs.module.multiproject.ProjectAssignment;
 
 import java.util.List;
@@ -38,6 +39,15 @@ public class ProjectAssignmentDAO extends BaseMultiProjectOpenmrsObjectDAO<Proje
         .createCriteria(ProjectAssignment.class)
         .add(Restrictions.eq("voided", Boolean.FALSE))
         .add(Restrictions.eq("objectClass", objectClass))
+        .list();
+  }
+
+  public List<ProjectAssignment> getProjectAssignmentsForObjectAndProject(String objectClass, Project project) {
+    return getSession()
+        .createCriteria(ProjectAssignment.class)
+        .add(Restrictions.eq("voided", Boolean.FALSE))
+        .add(Restrictions.eq("objectClass", objectClass))
+        .add(Restrictions.eq("project", project))
         .list();
   }
 
