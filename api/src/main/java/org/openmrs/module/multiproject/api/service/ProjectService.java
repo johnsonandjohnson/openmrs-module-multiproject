@@ -16,21 +16,17 @@ import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.multiproject.Project;
 import org.openmrs.module.multiproject.api.constant.PrivilegeConstants;
 import org.openmrs.module.multiproject.api.dao.ProjectDAO;
+import org.openmrs.module.multiproject.filter.CurrentProjectProvider;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The ProjectService service is a default OpenMRS-style service for managing Project entity.
  *
  * <p>The Project entity is used to configure available projects in the system.
  */
-public interface ProjectService extends OpenmrsService {
+public interface ProjectService extends OpenmrsService, CurrentProjectProvider {
   void setProjectDAO(ProjectDAO projectDAO);
-
-  boolean isCurrentUserProjectSet();
-
-  Optional<Project> getCurrentUserProject() throws APIException;
 
   Project getProject(Integer projectId) throws APIException;
 

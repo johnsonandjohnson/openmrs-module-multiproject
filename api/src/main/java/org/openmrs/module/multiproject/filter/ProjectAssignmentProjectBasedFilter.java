@@ -49,25 +49,31 @@ import java.util.stream.Collectors;
 public class ProjectAssignmentProjectBasedFilter<R> implements ProjectBasedFilter<R> {
   private final Class<?> assignmentClass;
   private final Function<R, String> idGetter;
+  private final CurrentProjectProvider currentProjectProvider;
 
   public ProjectAssignmentProjectBasedFilter(
       Class<?> assignmentClass, Function<R, String> idGetter) {
+    this(Context.getService(ProjectService.class), assignmentClass, idGetter);
+  }
+
+  public ProjectAssignmentProjectBasedFilter(
+      CurrentProjectProvider currentProjectProvider,
+      Class<?> assignmentClass,
+      Function<R, String> idGetter) {
+    this.currentProjectProvider = currentProjectProvider;
     this.assignmentClass = assignmentClass;
     this.idGetter = idGetter;
   }
 
   @Override
   public void doFilter(Collection<R> itemsToFilter) throws APIException {
-    final ProjectService projectService = Context.getService(ProjectService.class);
-
-    if (projectService.isCurrentUserProjectSet()) {
+    if (currentProjectProvider.isCurrentUserProjectSet()) {
       filterProjectBased(itemsToFilter);
     }
   }
 
   private void filterProjectBased(Collection<R> results) {
-    final ProjectService projectService = Context.getService(ProjectService.class);
-    final Optional<Project> currentProject = projectService.getCurrentUserProject();
+    final Optional<Project> currentProject = currentProjectProvider.getCurrentUserProject();
 
     final ProjectAssignmentService projectAssignmentService =
         Context.getService(ProjectAssignmentService.class);

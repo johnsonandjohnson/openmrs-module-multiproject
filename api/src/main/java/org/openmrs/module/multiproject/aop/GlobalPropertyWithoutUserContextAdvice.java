@@ -10,23 +10,17 @@
 
 package org.openmrs.module.multiproject.aop;
 
+import org.openmrs.GlobalProperty;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.multiproject.Project;
+import org.openmrs.module.multiproject.util.PersonProjectUtils;
+import org.springframework.aop.MethodBeforeAdvice;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.openmrs.GlobalProperty;
-import org.openmrs.Location;
-import org.openmrs.LocationAttribute;
-import org.openmrs.Patient;
-import org.openmrs.Person;
-import org.openmrs.PersonAttribute;
-import org.openmrs.api.LocationService;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.multiproject.Project;
-import org.openmrs.module.multiproject.api.service.ProjectService;
-import org.openmrs.module.multiproject.api.exception.MultiProjectRuntimeException;
-import org.springframework.aop.MethodBeforeAdvice;
 
 public class GlobalPropertyWithoutUserContextAdvice implements MethodBeforeAdvice {
 
@@ -53,35 +47,12 @@ public class GlobalPropertyWithoutUserContextAdvice implements MethodBeforeAdvic
   }
 
   private void overrideGPWithProjectSuffixIfNeeded(Object[] methodParams) {
-    Optional<Location> patientLocation = getPatientLocation((Patient) methodParams[1]);
-    Optional<LocationAttribute> locationProjectAttribute =
-        getProjectAttribute(patientLocation.get());
-    if (locationProjectAttribute.isPresent()) {
-      Project project =
-          Context.getService(ProjectService.class)
-              .getProjectByUuid(locationProjectAttribute.get().getValueReference());
-      methodParams[0] = findProjectOrDefaultGPName((String) methodParams[0], project.getSlug());
-    }
-  }
-
-  private Optional<Location> getPatientLocation(Patient patient) {
-    Optional<Location> patientLocation = getLocationFromAttribute(patient);
-    if (!patientLocation.isPresent()) {
-      throw new MultiProjectRuntimeException(
-          String.format(
-              "Missing location for patient with uuid %s! Not able to determine location project.",
-              patient.getUuid()));
-    }
-
-    return patientLocation;
-  }
-
-  private Optional<LocationAttribute> getProjectAttribute(Location location) {
-    return location.getActiveAttributes().stream()
-        .filter(
-            attribute ->
-                StringUtils.equalsIgnoreCase(attribute.getAttributeType().getName(), "Project"))
-        .findFirst();
+    final Optional<Project> patientProject =
+        PersonProjectUtils.getPersonProject((Patient) methodParams[1]);
+    patientProject.ifPresent(
+        project ->
+            methodParams[0] =
+                findProjectOrDefaultGPName((String) methodParams[0], project.getSlug()));
   }
 
   private String findProjectOrDefaultGPName(String basicGPName, String projectSlug) {
@@ -95,19 +66,5 @@ public class GlobalPropertyWithoutUserContextAdvice implements MethodBeforeAdvic
     }
 
     return basicGPName;
-  }
-
-  public static Optional<Location> getLocationFromAttribute(Person person) {
-    final String locationAttributeName =
-        Context.getAdministrationService().getGlobalProperty("cfl.person.attribute.location");
-
-    if (locationAttributeName == null) {
-      return Optional.empty();
-    }
-
-    final LocationService locationService = Context.getLocationService();
-    return Optional.ofNullable(person.getAttribute(locationAttributeName))
-        .map(PersonAttribute::getValue)
-        .map(locationService::getLocationByUuid);
   }
 }
