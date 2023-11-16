@@ -44,6 +44,7 @@
     <legacyUiVersion>1.6.0</legacyUiVersion>
     <uiframeworkVersion>3.9</uiframeworkVersion>
     <webservices.restVersion>2.16</webservices.restVersion>
+    <appframeworkVersion>2.9</appframeworkVersion>
   </properties>
 
   <dependencyManagement>
@@ -76,6 +77,12 @@
         <groupId>org.openmrs.module</groupId>
         <artifactId>webservices.rest-omod-common</artifactId>
         <version>${webservices.restVersion}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.openmrs.module</groupId>
+        <artifactId>appframework-api</artifactId>
+        <version>${appframeworkVersion}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Swagger dependencies-->
