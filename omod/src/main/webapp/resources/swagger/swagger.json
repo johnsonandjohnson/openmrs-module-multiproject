@@ -1,0 +1,9 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "REST API for Multi-project Module.",
+    "version" : "v1",
+    "title" : "Multi-project Module REST API"
+  },
+  "basePath" : "/openmrs/ws"
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~  v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~  obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~  the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <bean id="multiproject.ProjectService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="target">
+      <bean class="org.openmrs.module.multiproject.api.service.impl.ProjectServiceImpl">
+        <property name="projectDAO">
+          <bean class="org.openmrs.module.multiproject.api.dao.ProjectDAO">
+            <property name="dbSessionFactory" ref="dbSessionFactory"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="preInterceptors" ref="serviceInterceptors"/>
+    <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
+  </bean>
+  <bean parent="serviceContext">
+    <property name="moduleService">
+      <list merge="true">
+        <value>org.openmrs.module.multiproject.api.service.ProjectService</value>
+        <ref bean="multiproject.ProjectService"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="multiproject.ProjectAssignmentService"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="target">
+      <bean class="org.openmrs.module.multiproject.api.service.impl.ProjectAssignmentServiceImpl">
+        <property name="projectAssignmentDAO">
+          <bean class="org.openmrs.module.multiproject.api.dao.ProjectAssignmentDAO">
+            <property name="dbSessionFactory" ref="dbSessionFactory"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="preInterceptors" ref="serviceInterceptors"/>
+    <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
+  </bean>
+  <bean parent="serviceContext">
+    <property name="moduleService">
+      <list merge="true">
+        <value>org.openmrs.module.multiproject.api.service.ProjectAssignmentService</value>
+        <ref bean="multiproject.ProjectAssignmentService"/>
+      </list>
+    </property>
+  </bean>
+</beans>

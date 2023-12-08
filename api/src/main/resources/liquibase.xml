@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~  v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~  obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~  the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+  <!--
+    See http://wiki.openmrs.org/display/docs/Module+liquibase+File for
+    documentation on this file.
+
+      See http://www.liquibase.org/manual/home#available_database_refactorings
+      for a list of supported elements and attributes
+  -->
+
+  <changeSet id="multiproject-init-Project" author="Connect for Life">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="multiproject_project"/>
+      </not>
+    </preConditions>
+    <comment>Creating table for Project entity (multiproject_project)</comment>
+    <createTable tableName="multiproject_project">
+      <!-- Project -->
+      <column name="project_id" autoIncrement="true" type="int">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="slug" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- BaseOpenmrsMetadata -->
+      <column name="name" defaultValue="" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="creator" defaultValueNumeric="0" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date_created" type="DATETIME">
+        <constraints nullable="false"/>
+      </column>
+      <column name="changed_by" type="int"/>
+      <column name="date_changed" type="DATETIME"/>
+      <column name="retired" defaultValueBoolean="false" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date_retired" type="DATETIME"/>
+      <column name="retired_by" type="int"/>
+      <column name="retire_reason" type="varchar(255)"/>
+      <!-- BaseOpenmrsObject -->
+      <column name="uuid" type="char(38)"/>
+    </createTable>
+    <!-- BaseOpenmrsMetadata -->
+    <addForeignKeyConstraint constraintName="project_creator_fk"
+                             baseTableName="multiproject_project" baseColumnNames="creator"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="project_changed_by_fk"
+                             baseTableName="multiproject_project" baseColumnNames="changed_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="project_retired_by_fk"
+                             baseTableName="multiproject_project" baseColumnNames="retired_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <modifySql dbms="mssql">
+      <replace replace="CHAR(38)" with="UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID()"/>
+    </modifySql>
+  </changeSet>
+
+  <changeSet id="multiproject-init-ProjectAssignment" author="Connect for Life">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="multiproject_project_assignment"/>
+      </not>
+    </preConditions>
+    <comment>Creating table for ProjectAssignment entity (multiproject_project_assignment)</comment>
+    <createTable tableName="multiproject_project_assignment">
+      <!-- ProjectAssignment -->
+      <column name="project_assignment_id" autoIncrement="true" type="int">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="project_id" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="object_class" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="object_id" type="varchar(512)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- BaseOpenmrsData -->
+      <column name="creator" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date_created" type="datetime">
+        <constraints nullable="false"/>
+      </column>
+      <column name="changed_by" type="int"/>
+      <column name="date_changed" type="datetime"/>
+      <column name="voided" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date_voided" type="datetime"/>
+      <column name="voided_by" type="int"/>
+      <column name="void_reason" type="varchar(255)"/>
+      <!-- BaseOpenmrsObject -->
+      <column name="uuid" type="char(38)"/>
+    </createTable>
+    <!-- ProjectAssignment -->
+    <addForeignKeyConstraint constraintName="project_assignment_project_fk"
+                             baseTableName="multiproject_project_assignment" baseColumnNames="project_id"
+                             referencedTableName="multiproject_project"
+                             referencedColumnNames="project_id"/>
+    <!-- BaseOpenmrsData -->
+    <addForeignKeyConstraint constraintName="project_assignment_creator_fk"
+                             baseTableName="multiproject_project_assignment" baseColumnNames="creator"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="project_assignment_changed_by_fk"
+                             baseTableName="multiproject_project_assignment" baseColumnNames="changed_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="project_assignment_voided_by_fk"
+                             baseTableName="multiproject_project_assignment" baseColumnNames="voided_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+  </changeSet>
+</databaseChangeLog>
