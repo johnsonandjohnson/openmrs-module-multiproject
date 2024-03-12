@@ -11,7 +11,7 @@
 package org.openmrs.module.multiproject.aop;
 
 import org.openmrs.GlobalProperty;
-import org.openmrs.Patient;
+import org.openmrs.Person;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.multiproject.Project;
 import org.openmrs.module.multiproject.util.PersonProjectUtils;
@@ -48,7 +48,7 @@ public class GlobalPropertyWithoutUserContextAdvice implements MethodBeforeAdvic
 
   private void overrideGPWithProjectSuffixIfNeeded(Object[] methodParams) {
     final Optional<Project> patientProject =
-        PersonProjectUtils.getPersonProject((Patient) methodParams[1]);
+        PersonProjectUtils.getPersonProject((Person) methodParams[1]);
     patientProject.ifPresent(
         project ->
             methodParams[0] =
